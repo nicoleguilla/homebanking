@@ -29,7 +29,7 @@ public class HomebankingApplication {
 
 			LocalDate now = LocalDate.now();
 			LocalDate nextDay = now.plusDays(1);
-			Account account1 = new Account("VIN001",LocalDate.now(),5000.0);
+			Account account1 = new Account("VIN001",now,5000.0);
 			Account account2 = new Account("VIN002",nextDay,7500.0);
 			Account account3 = new Account("VIN003",LocalDate.now(),10000.0);
 
