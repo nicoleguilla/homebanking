@@ -16,6 +16,8 @@ public class ClientDTO {
 
     private Set<ClientLoanDTO> loans;
 
+    private Set<CardDTO> cards;
+
     public ClientDTO() {
     }
 
@@ -32,6 +34,8 @@ public class ClientDTO {
         this.accounts = client.getAccounts().stream().map(AccountDTO::new).collect(toSet());
 
         this.loans=client.getClientLoans().stream().map(ClientLoanDTO::new).collect(toSet());
+
+        this.cards = client.getCards().stream().map(CardDTO::new).collect(toSet());
     }
 
     public Long getId() { return id; }
@@ -52,6 +56,10 @@ public class ClientDTO {
 
     public Set<ClientLoanDTO> getLoans() {
         return loans;
+    }
+
+    public Set<CardDTO> getCards() {
+        return cards;
     }
 
     @Override

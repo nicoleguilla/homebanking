@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @SpringBootApplication
@@ -19,7 +20,8 @@ public class HomebankingApplication {
 	}
 	@Bean
 	public CommandLineRunner initData(ClientRepository clientRepository, AccountRepository accountRepository, TransactionRepository transactionRepository, LoanRepository loanRepository,
-									  ClientLoanRepository clientLoanRepository) {
+									  ClientLoanRepository clientLoanRepository,
+									  CardRepository cardRepository) {
 		return (args) -> {
 
 			Client client1 = new Client("Melba", "Morel","melba@mindhub.com");
@@ -73,7 +75,6 @@ public class HomebankingApplication {
 			ClientLoan clientLoan3 = new ClientLoan(loan2.getName(),100000,loan2.getPayments().get(2));
 			ClientLoan clientLoan4 = new ClientLoan(loan3.getName(),200000,loan3.getPayments().get(3));
 
-
 			loan1.addClientLoan(clientLoan1);
 			loan2.addClientLoan(clientLoan2);
 			loan2.addClientLoan(clientLoan3);
@@ -93,6 +94,20 @@ public class HomebankingApplication {
 			clientLoanRepository.save(clientLoan2);
 			clientLoanRepository.save(clientLoan3);
 			clientLoanRepository.save(clientLoan4);
+
+			Card card1 = new Card(client1.getFirstName()+" "+client1.getLastName(),CardType.DEBIT, CardColor.GOLD,"3489 3442 3243 2342",453,LocalDate.now(),LocalDate.now().plusYears(5));
+			Card card2 = new Card(client1.getFirstName()+" "+client1.getLastName(),CardType.CREDIT, CardColor.TITANIUM,"3246 8768 4564 9877",754,LocalDate.now(),LocalDate.now().plusYears(5));
+			Card card3 = new Card(client2.getFirstName()+" "+client2.getLastName(),CardType.CREDIT, CardColor.SILVER,"2345 6564 8768 3454",237,LocalDate.now(),LocalDate.now().plusYears(5));
+
+			client1.addCard(card1);
+			client1.addCard(card2);
+			client2.addCard(card3);
+			clientRepository.save(client1);
+			clientRepository.save(client2);
+
+			cardRepository.save(card1);
+			cardRepository.save(card2);
+			cardRepository.save(card3);
 		};
 	}
 
