@@ -69,10 +69,10 @@ public class HomebankingApplication {
 			loanRepository.save(loan1);
 			loanRepository.save(loan2);
 			loanRepository.save(loan3);
-			ClientLoan clientLoan1 = new ClientLoan(loan1.getName(),400000,loan1.getPayments().get(4), client1, loan1);
-			ClientLoan clientLoan2 = new ClientLoan(loan2.getName(),50000,loan2.getPayments().get(1), client1, loan2);
-			ClientLoan clientLoan3 = new ClientLoan(loan2.getName(),100000,loan2.getPayments().get(2), client2, loan2);
-			ClientLoan clientLoan4 = new ClientLoan(loan3.getName(),200000,loan3.getPayments().get(3), client2, loan3);
+			ClientLoan clientLoan1 = new ClientLoan(400000,loan1.getPayments().get(4));
+			ClientLoan clientLoan2 = new ClientLoan(50000,loan2.getPayments().get(1));
+			ClientLoan clientLoan3 = new ClientLoan(100000,loan2.getPayments().get(2));
+			ClientLoan clientLoan4 = new ClientLoan(200000,loan3.getPayments().get(3));
 
 			loan1.addClientLoan(clientLoan1);
 			loan2.addClientLoan(clientLoan2);

@@ -25,7 +25,7 @@ public class Client {
     private Set<Account> accounts = new HashSet<>();
 
     @OneToMany(mappedBy="client", fetch=FetchType.EAGER)
-    Set<ClientLoan> clientLoans = new HashSet<>();
+    private Set<ClientLoan> clientLoans = new HashSet<>();
 
     @OneToMany(mappedBy="client", fetch=FetchType.EAGER)
     private Set<Card> cards = new HashSet<>();

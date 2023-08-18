@@ -15,7 +15,7 @@ public class ClientLoanDTO {
         this.loanId = clientLoan.getLoan().getId();
         this.name = clientLoan.getLoan().getName();
         this.amount = clientLoan.getAmount();
-        this.payments = clientLoan.getPayment();
+        this.payments = clientLoan.getPayments();
     }
 
     public long getId() {
