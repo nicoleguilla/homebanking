@@ -26,8 +26,9 @@ public class Loan {
     @ElementCollection
     @Column(name = "payments")
     private List<Integer> payments = new ArrayList<>();
+
     @OneToMany(mappedBy="loan", fetch=FetchType.EAGER)
-    Set<ClientLoan> clientLoans = new HashSet<>();
+    private Set<ClientLoan> clientLoans = new HashSet<>();
 
     public Loan() {
 

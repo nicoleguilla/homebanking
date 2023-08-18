@@ -34,7 +34,7 @@ public class ClientController {
     }
 
     @PostMapping("/clients")
-    ResponseEntity<Client> saveClient(@RequestBody Client client) {
+    public ResponseEntity<Client> saveClient(@RequestBody Client client) {
         Client client1 = clientRepository.save(client);
         return new ResponseEntity<>(client1, HttpStatus.CREATED);
     }

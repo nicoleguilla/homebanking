@@ -21,7 +21,7 @@ public class AccountController {
     private AccountRepository accountRepository;
 
     @GetMapping("/accounts")
-    ResponseEntity<List<AccountDTO>> getAccounts() {
+    public ResponseEntity<List<AccountDTO>> getAccounts() {
         List<AccountDTO> accountDTOS = accountRepository.findAll().stream().map(AccountDTO::new).collect(Collectors.toList());
         return new ResponseEntity<>(accountDTOS, HttpStatus.OK);
     }

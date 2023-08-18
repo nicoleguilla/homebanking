@@ -4,23 +4,26 @@ import com.example.homebanking.models.ClientLoan;
 
 public class ClientLoanDTO {
     private long id;
+    private long loanId;
     private String name;
     private double amount;
     private int payments;
-    private long loan_id;
-    private String loan_name;
+
 
     public ClientLoanDTO(ClientLoan clientLoan) {
         this.id = clientLoan.getId();
-        this.name = clientLoan.getName();
+        this.loanId = clientLoan.getLoan().getId();
+        this.name = clientLoan.getLoan().getName();
         this.amount = clientLoan.getAmount();
         this.payments = clientLoan.getPayment();
-        this.loan_id = clientLoan.getLoan().getId();
-        this.loan_name = clientLoan.getLoan().getName();
     }
 
     public long getId() {
         return id;
+    }
+
+    public long getLoanId() {
+        return loanId;
     }
 
     public String getName() {
@@ -33,13 +36,5 @@ public class ClientLoanDTO {
 
     public int getPayments() {
         return payments;
-    }
-
-    public long getLoan_id() {
-        return loan_id;
-    }
-
-    public String getLoan_name() {
-        return loan_name;
     }
 }
