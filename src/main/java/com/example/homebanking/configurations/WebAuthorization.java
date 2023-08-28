@@ -18,24 +18,28 @@ class WebAuthorization extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/web/index.html").permitAll()
-                .antMatchers("/h2-console/**").hasAuthority("ADMIN")
+                .antMatchers("/web/index.html", "/web/css/**", "/web/js/**", "/web/img/**").permitAll()
+                .antMatchers("/h2-console").hasAuthority("ADMIN")
                 .antMatchers(HttpMethod.POST, "/api/clients").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/clients").hasAuthority("ADMIN")
-                .antMatchers("/web/css/**").permitAll()
-                .antMatchers("/web/js/**").permitAll()
-                .antMatchers("/web/img/**").permitAll()
                 .antMatchers("/web/accounts.html").hasAnyAuthority("ADMIN", "CLIENT")
                 .antMatchers("/admin/**").hasAuthority("ADMIN")
-                .antMatchers("/api/clients/**").hasAnyAuthority("ADMIN", "CLIENT")
-                .antMatchers("/rest/**").hasAuthority("ADMIN")
+                .antMatchers("/manager.html", "/manager.js").hasAuthority("ADMIN")
+                .antMatchers("/api/clients/{id}","/api/accounts","/api/accounts/{id}").hasAuthority("CLIENT")
+                .antMatchers(HttpMethod.POST,"/api/clients/current/accounts", "/api/clients/current/cards").hasAuthority("CLIENT")
+                .antMatchers("/api/clients/current", "/api/clients/current/cards").hasAuthority("CLIENT")
+                .antMatchers("/api/clients/**", "/web/**").hasAnyAuthority("ADMIN", "CLIENT")
+                .antMatchers("/rest/**", "/api/**").hasAuthority("ADMIN")
                 .anyRequest().denyAll();
+
+
 
         http.formLogin()
                 .usernameParameter("email")
                 .passwordParameter("password")
                 .loginPage("/api/login");
-        http.logout().logoutUrl("/api/logout");
+
+        http.logout().logoutUrl("/api/logout").deleteCookies("JSESSIONID");
 
         // turn off checking for CSRF tokens
         http.csrf().disable();

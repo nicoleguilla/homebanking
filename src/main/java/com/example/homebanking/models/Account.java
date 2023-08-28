@@ -48,7 +48,6 @@ public class Account {
 
     public void setBalance(Double balance) { this.balance = balance; }
 
-    //@JsonIgnore
     public Client getClient() { return client; }
 
     public void setClient(Client client) { this.client = client; }

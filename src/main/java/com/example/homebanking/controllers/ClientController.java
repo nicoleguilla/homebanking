@@ -1,7 +1,9 @@
 package com.example.homebanking.controllers;
 
 import com.example.homebanking.dtos.ClientDTO;
+import com.example.homebanking.models.Account;
 import com.example.homebanking.models.Client;
+import com.example.homebanking.repositories.AccountRepository;
 import com.example.homebanking.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.integration.IntegrationProperties;
@@ -11,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,9 @@ public class ClientController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     @RequestMapping("/clients")
     public ResponseEntity<List<ClientDTO>> getClients() {
@@ -49,24 +55,28 @@ public class ClientController {
     public ResponseEntity<Object> register(
             @RequestParam String firstName, @RequestParam String lastName,
             @RequestParam String email, @RequestParam String password) {
-        if (firstName.isEmpty()) {
+        if (firstName.isBlank()) {
             return new ResponseEntity<>("Missing first name", HttpStatus.FORBIDDEN);
         }
-        if (lastName.isEmpty()) {
+        if (lastName.isBlank()) {
             return new ResponseEntity<>("Missing last name", HttpStatus.FORBIDDEN);
         }
-        if (email.isEmpty()) {
+        if (email.isBlank()) {
             return new ResponseEntity<>("Missing email", HttpStatus.FORBIDDEN);
         }
-        if (password.isEmpty()) {
+        if (password.isBlank()) {
             return new ResponseEntity<>("Missing password", HttpStatus.FORBIDDEN);
         }
-
         if (clientRepository.findByEmail(email) !=  null) {
             return new ResponseEntity<>("Email already in use", HttpStatus.FORBIDDEN);
         }
-        Client client = clientRepository.save(new Client(firstName, lastName, email, passwordEncoder.encode(password)));
-        System.out.println(client);
+        Client client = new Client(firstName, lastName, email, passwordEncoder.encode(password));
+        clientRepository.save(client);
+
+        Account account = new Account("VIN-"+(Math.random() * 99999999), LocalDate.now(),0.0);
+        account.setClient(client);
+        accountRepository.save(account);
+
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
