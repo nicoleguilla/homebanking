@@ -33,6 +33,9 @@ public class ClientController {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private AccountController  accountController;
+
     @RequestMapping("/clients")
     public ResponseEntity<List<ClientDTO>> getClients() {
         List<ClientDTO> clients = clientRepository.findAll().stream().map(ClientDTO::new).collect(toList());
@@ -73,7 +76,7 @@ public class ClientController {
         Client client = new Client(firstName, lastName, email, passwordEncoder.encode(password));
         clientRepository.save(client);
 
-        Account account = new Account("VIN-"+(Math.random() * 99999999), LocalDate.now(),0.0);
+        Account account = new Account(accountController.createNumberAccount(), LocalDate.now(),0.0);
         account.setClient(client);
         accountRepository.save(account);
 

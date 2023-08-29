@@ -45,14 +45,15 @@ public class CardController {
     public ResponseEntity<Object> createCurrentCard(@RequestParam String cardType, @RequestParam String cardColor, Authentication authentication){
 
         if(cardType.isEmpty()) {
-            return new ResponseEntity<>("Missing data: card type is empty", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("Missing card type", HttpStatus.FORBIDDEN);
         }
         if(cardColor.isEmpty()) {
-            return new ResponseEntity<>("Missing data: card color is empty", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("Missing card color", HttpStatus.FORBIDDEN);
         }
-
-        if(cardRepository.findByClientEmail(authentication.getName()).size()>=3){
-            return new ResponseEntity<>("User has 3 cards", HttpStatus.FORBIDDEN);
+        List<Card> debitCards = cardRepository.findByClientEmail(authentication.getName()).stream().filter(card -> card.getType().equals(CardType.DEBIT)).collect(toList());
+        List<Card> creditCards = cardRepository.findByClientEmail(authentication.getName()).stream().filter(card -> card.getType().equals(CardType.CREDIT)).collect(toList());
+        if(debitCards.size() >= 3 || creditCards.size() >= 3){
+            return new ResponseEntity<>("User has 3 cards of same type", HttpStatus.FORBIDDEN);
         }
         Client authenticatedClient = clientRepository.findByEmail(authentication.getName());
         Card card = new Card(authenticatedClient.getFirstName() + " " + authenticatedClient.getLastName(), CardType.valueOf(cardType), CardColor.valueOf(cardColor),generateNumber(),generateCvv(), LocalDateTime.now(),LocalDateTime.now().plusYears(5));
@@ -66,12 +67,12 @@ public class CardController {
     }
 
     private String generateNumber(){
-        DecimalFormat format=new DecimalFormat("0000");
+        DecimalFormat format = new DecimalFormat("0000");
         String number="";
-        for(int i=0;i<4;i++){
+        for (int i = 0; i < 4; i++){
             number += format.format((int)(Math.random() * 9999));
-            if(i!=3){
-                number+="-";
+            if(i != 3){
+                number += "-";
             }
         }
         return number;

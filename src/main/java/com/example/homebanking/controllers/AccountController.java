@@ -51,7 +51,7 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    private String createNumberAccount(){
+    protected String createNumberAccount(){
         String numberAccount;
         do {
             int number = (int) (Math.random() * 99999999);
