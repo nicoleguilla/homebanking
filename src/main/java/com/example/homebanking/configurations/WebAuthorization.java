@@ -23,16 +23,13 @@ class WebAuthorization extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/clients").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/clients").hasAuthority("ADMIN")
                 .antMatchers("/web/accounts.html").hasAnyAuthority("ADMIN", "CLIENT")
-                .antMatchers("/admin/**").hasAuthority("ADMIN")
-                .antMatchers("/manager.html", "/manager.js").hasAuthority("ADMIN")
-                .antMatchers("/api/clients/{id}","/api/accounts","/api/accounts/{id}").hasAuthority("CLIENT")
+                .antMatchers("/manager.html", "/manager.js", "/api/accounts/{id}", "/api/clients/{id}").hasAuthority("ADMIN")
+                .antMatchers("/api/accounts","/api/accounts/{id}").hasAuthority("CLIENT")
                 .antMatchers(HttpMethod.POST,"/api/clients/current/accounts", "/api/clients/current/cards").hasAuthority("CLIENT")
-                .antMatchers("/api/clients/current", "/api/clients/current/cards").hasAuthority("CLIENT")
-                .antMatchers("/api/clients/**", "/web/**").hasAnyAuthority("ADMIN", "CLIENT")
+                .antMatchers( "/api/clients/current/cards").hasAuthority("CLIENT")
+                .antMatchers("/api/clients/current", "/web/**").hasAnyAuthority("ADMIN", "CLIENT")
                 .antMatchers("/rest/**", "/api/**").hasAuthority("ADMIN")
                 .anyRequest().denyAll();
-
-
 
         http.formLogin()
                 .usernameParameter("email")

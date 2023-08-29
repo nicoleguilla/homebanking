@@ -20,7 +20,6 @@ public class Client {
     private String firstName;
     private String lastName;
     private String email;
-
     private String password;
 
     @OneToMany(mappedBy="client", fetch=FetchType.EAGER)
