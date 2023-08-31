@@ -48,7 +48,6 @@ public class TransactionController {
     @RequestMapping(path = "/transactions",method = RequestMethod.POST)
     public ResponseEntity<Object> createTransaction(Authentication authentication, @RequestParam double amount, @RequestParam String description, @RequestParam String fromAccountNumber, @RequestParam String toAccountNumber){
 
-        Client authenticatedClient = clientRepository.findByEmail(authentication.getName());
         Account sourceAccount = accountRepository.findByNumber(fromAccountNumber);
         Account destinationAccount= accountRepository.findByNumber(toAccountNumber);
 
