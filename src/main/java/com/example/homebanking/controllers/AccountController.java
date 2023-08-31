@@ -2,6 +2,7 @@ package com.example.homebanking.controllers;
 
 import com.example.homebanking.dtos.AccountDTO;
 import com.example.homebanking.models.Account;
+import com.example.homebanking.models.Client;
 import com.example.homebanking.repositories.AccountRepository;
 import com.example.homebanking.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +32,20 @@ public class AccountController {
     }
 
     @GetMapping("/accounts/{id}")
-    public ResponseEntity<AccountDTO> getClient(@PathVariable Long id) {
-        AccountDTO accountDTO = accountRepository.findById(id).map(AccountDTO::new).orElse(null);
-        System.out.println(accountDTO);
-        return new ResponseEntity<>(accountDTO,HttpStatus.OK);
+    public ResponseEntity<Object> getClient(@PathVariable Long id, Authentication authentication) {
+        Client client = clientRepository.findByEmail(authentication.getName());
+        Account account = accountRepository.findById(id).orElse(null);
+        if (client == null) {
+            return new ResponseEntity<>("Client not found", HttpStatus.FORBIDDEN);
+        }
+        if (account == null) {
+            return new ResponseEntity<>("Account not found", HttpStatus.FORBIDDEN);
+        }
+        if (account.getClient().getId().equals(client.getId())) {
+            return new ResponseEntity<>(new AccountDTO(account), HttpStatus.ACCEPTED);
+        }
+        return new ResponseEntity<>("Access deny", HttpStatus.FORBIDDEN);
     }
-
 
     @RequestMapping(path ="/clients/current/accounts" ,method = RequestMethod.POST)
     public ResponseEntity<Object> createAccount(Authentication authentication){
