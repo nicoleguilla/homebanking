@@ -7,6 +7,8 @@ import com.example.homebanking.models.CardType;
 import com.example.homebanking.models.Client;
 import com.example.homebanking.repositories.CardRepository;
 import com.example.homebanking.repositories.ClientRepository;
+import com.example.homebanking.services.CardService;
+import com.example.homebanking.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,19 +28,19 @@ import static java.util.stream.Collectors.toList;
 @RequestMapping("/api")
 public class CardController {
     @Autowired
-    private CardRepository cardRepository;
+    private CardService cardService;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private ClientService clientService;
 
     @RequestMapping("/cards")
     public List<CardDTO> getAllCards(){
-        return cardRepository.findAll().stream().map(CardDTO::new).collect(toList());
+        return cardService.getAllCardDTO();
     }
 
     @RequestMapping("/clients/current/cards")
     public List<CardDTO> getCurrentClientCards(Authentication authentication){
-        return cardRepository.findByClientEmail(authentication.getName()).stream().map(CardDTO::new).collect(toList());
+        return cardService.getCurrentClientCards(authentication.getName());
     }
 
     @RequestMapping(path = "/clients/current/cards",method = RequestMethod.POST)
@@ -50,31 +52,21 @@ public class CardController {
         if(cardColor.isEmpty()) {
             return new ResponseEntity<>("Missing card color", HttpStatus.FORBIDDEN);
         }
-        List<Card> debitCards = cardRepository.findByClientEmail(authentication.getName()).stream().filter(card -> card.getType().equals(CardType.DEBIT)).collect(toList());
-        List<Card> creditCards = cardRepository.findByClientEmail(authentication.getName()).stream().filter(card -> card.getType().equals(CardType.CREDIT)).collect(toList());
+        List<Card> debitCards = cardService.getFilteredCards(authentication.getName(), CardType.DEBIT);
+        List<Card> creditCards = cardService.getFilteredCards(authentication.getName(), CardType.CREDIT);
         if(debitCards.size() >= 3 || creditCards.size() >= 3){
-            return new ResponseEntity<>("User has 3 cards of same type", HttpStatus.FORBIDDEN);
+            if(debitCards.size() >= 3 && CardType.valueOf(cardType).equals(CardType.DEBIT))
+                return new ResponseEntity<>("User has already 3 debit cards", HttpStatus.FORBIDDEN);
+            if(creditCards.size() >= 3 && CardType.valueOf(cardType).equals(CardType.CREDIT))
+                return new ResponseEntity<>("User has already 3 credit cards", HttpStatus.FORBIDDEN);
         }
-        Client authenticatedClient = clientRepository.findByEmail(authentication.getName());
-        Card card = new Card(authenticatedClient.getFirstName() + " " + authenticatedClient.getLastName(), CardType.valueOf(cardType), CardColor.valueOf(cardColor),generateNumber(),generateCvv(), LocalDateTime.now(),LocalDateTime.now().plusYears(5));
+
+        Client authenticatedClient = clientService.findByEmail(authentication.getName());
+
+        Card card = cardService.createCurrentCard(authenticatedClient.getFirstName(), authenticatedClient.getLastName(), cardType, cardColor);
         card.setClient(authenticatedClient);
-        cardRepository.save(card);
+        cardService.save(card);
+
         return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    private int generateCvv(){
-        return (int) (Math.random() * 999);
-    }
-
-    private String generateNumber(){
-        DecimalFormat format = new DecimalFormat("0000");
-        String number="";
-        for (int i = 0; i < 4; i++){
-            number += format.format((int)(Math.random() * 9999));
-            if(i != 3){
-                number += "-";
-            }
-        }
-        return number;
     }
 }

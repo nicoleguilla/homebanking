@@ -5,6 +5,8 @@ import com.example.homebanking.models.Account;
 import com.example.homebanking.models.Client;
 import com.example.homebanking.repositories.AccountRepository;
 import com.example.homebanking.repositories.ClientRepository;
+import com.example.homebanking.services.AccountService;
+import com.example.homebanking.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +22,21 @@ import java.util.stream.Collectors;
 public class AccountController {
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountService accountService;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private ClientService clientService;
 
     @GetMapping("/accounts")
     public ResponseEntity<List<AccountDTO>> getAccounts() {
-        List<AccountDTO> accountDTOS = accountRepository.findAll().stream().map(AccountDTO::new).collect(Collectors.toList());
+        List<AccountDTO> accountDTOS = accountService.getAllAccountDTO();
         return new ResponseEntity<>(accountDTOS, HttpStatus.OK);
     }
 
     @GetMapping("/accounts/{id}")
     public ResponseEntity<Object> getClient(@PathVariable Long id, Authentication authentication) {
-        Client client = clientRepository.findByEmail(authentication.getName());
-        Account account = accountRepository.findById(id).orElse(null);
+        Client client = clientService.findByEmail(authentication.getName());
+        Account account = accountService.findById(id);
         if (client == null) {
             return new ResponseEntity<>("Client not found", HttpStatus.FORBIDDEN);
         }
@@ -50,27 +52,18 @@ public class AccountController {
     @RequestMapping(path ="/clients/current/accounts" ,method = RequestMethod.POST)
     public ResponseEntity<Object> createAccount(Authentication authentication){
 
-        if(accountRepository.findByClientEmail(authentication.getName()).size()>=3){
+        if(accountService.findByClientEmail(authentication.getName()).size()>=3){
             return new ResponseEntity<>("User has 3 accounts", HttpStatus.FORBIDDEN);
         }
 
-        Account account = new Account(createNumberAccount(), LocalDate.now(),0.0);
-        account.setClient(clientRepository.findByEmail(authentication.getName()));
-        accountRepository.save(account);
+        Account account = accountService.createAccount();
+        account.setClient(clientService.findByEmail(authentication.getName()));
+        accountService.save(account);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    protected String createNumberAccount(){
-        String numberAccount;
-        do {
-            int number = (int) (Math.random() * 99999999);
-            numberAccount = "VIN-" + number;
-        } while (accountRepository.existsByNumber(numberAccount));
-        return numberAccount;
-    }
-
     @RequestMapping(path ="/clients/current/accounts")
-    public List<AccountDTO> getClientAccount(Authentication authentication){
-        return accountRepository.findByClientEmail(authentication.getName()).stream().map(AccountDTO::new).collect(Collectors.toList());
+    public List<AccountDTO> getClientAccounts(Authentication authentication){
+        return accountService.getClientAccounts(authentication.getName());
     }
 }

@@ -2,6 +2,7 @@ package com.example.homebanking.configurations;
 
 import com.example.homebanking.models.Client;
 import com.example.homebanking.repositories.ClientRepository;
+import com.example.homebanking.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,7 @@ public class WebAuthentication extends GlobalAuthenticationConfigurerAdapter {
     public void init(AuthenticationManagerBuilder auth) throws Exception {
 
         auth.userDetailsService(inputName-> {
-            Client client = clientRepository.findByEmail(inputName);
+            Client client = clientRepository.findByEmail(inputName).orElse(null);
             String email = client.getEmail();
             if (client != null) {
                 if (email.contains("admin.com")){

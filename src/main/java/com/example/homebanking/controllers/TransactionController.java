@@ -8,6 +8,9 @@ import com.example.homebanking.models.TransactionType;
 import com.example.homebanking.repositories.AccountRepository;
 import com.example.homebanking.repositories.ClientRepository;
 import com.example.homebanking.repositories.TransactionRepository;
+import com.example.homebanking.services.AccountService;
+import com.example.homebanking.services.ClientService;
+import com.example.homebanking.services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,32 +27,30 @@ import java.util.stream.Collectors;
 public class TransactionController {
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountService accountService;
 
     @Autowired
-    ClientRepository clientRepository;
+    ClientService clientService;
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private TransactionService transactionService;
 
     @GetMapping("/transactions")
     public ResponseEntity<List<TransactionDTO>> getTransactions() {
-        List<TransactionDTO> transactions= transactionRepository.findAll().stream().map(TransactionDTO::new).collect(Collectors.toList());
-        return new ResponseEntity<>(transactions, HttpStatus.OK);
+        return new ResponseEntity<>(transactionService.getTransactionsDTO(), HttpStatus.OK);
     }
 
     @GetMapping("/transactions/{id}")
     public ResponseEntity<TransactionDTO> getTransaction(@PathVariable Long id) {
-        TransactionDTO transactionDTO = transactionRepository.findById(id).map(TransactionDTO::new).orElse(null);
-        return new ResponseEntity<>(transactionDTO, HttpStatus.OK);
+        return new ResponseEntity<>(transactionService.getTransactionDTO(id), HttpStatus.OK);
     }
 
     @Transactional
     @RequestMapping(path = "/transactions",method = RequestMethod.POST)
     public ResponseEntity<Object> createTransaction(Authentication authentication, @RequestParam double amount, @RequestParam String description, @RequestParam String fromAccountNumber, @RequestParam String toAccountNumber){
 
-        Account sourceAccount = accountRepository.findByNumber(fromAccountNumber);
-        Account destinationAccount= accountRepository.findByNumber(toAccountNumber);
+        Account sourceAccount = accountService.findByNumber(fromAccountNumber);
+        Account destinationAccount = accountService.findByNumber(toAccountNumber);
 
         if (amount <= 0) {
             return new ResponseEntity<>("Amount invalid", HttpStatus.FORBIDDEN);
@@ -84,8 +85,8 @@ public class TransactionController {
             return new ResponseEntity<>("Insufficient funds",HttpStatus.FORBIDDEN);
         }
 
-        Transaction debitTransaction=new Transaction(TransactionType.DEBIT,-amount,description + " (DEBIT " + fromAccountNumber + ")", LocalDateTime.now());
-        Transaction creditTransaction=new Transaction(TransactionType.CREDIT,amount,description + " (CREDIT " + toAccountNumber + ")", LocalDateTime.now());
+        Transaction debitTransaction = new Transaction(TransactionType.DEBIT,-amount,description + " (DEBIT " + fromAccountNumber + ")", LocalDateTime.now());
+        Transaction creditTransaction = new Transaction(TransactionType.CREDIT,amount,description + " (CREDIT " + toAccountNumber + ")", LocalDateTime.now());
 
         sourceAccount.addTransaction(debitTransaction);
         destinationAccount.addTransaction(creditTransaction);
@@ -94,10 +95,10 @@ public class TransactionController {
 
         destinationAccount.setBalance(destinationAccount.getBalance() + amount);
 
-        transactionRepository.save(debitTransaction);
-        transactionRepository.save(creditTransaction);
-        accountRepository.save(sourceAccount);
-        accountRepository.save(destinationAccount);
+        transactionService.save(debitTransaction);
+        transactionService.save(creditTransaction);
+        accountService.save(sourceAccount);
+        accountService.save(destinationAccount);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

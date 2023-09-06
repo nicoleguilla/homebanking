@@ -4,9 +4,9 @@ import com.example.homebanking.dtos.ClientDTO;
 import com.example.homebanking.models.Account;
 import com.example.homebanking.models.Client;
 import com.example.homebanking.repositories.AccountRepository;
-import com.example.homebanking.repositories.ClientRepository;
+import com.example.homebanking.services.AccountService;
+import com.example.homebanking.services.implement.ClientServiceImplement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.integration.IntegrationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -25,32 +24,24 @@ import static java.util.stream.Collectors.toList;
 public class ClientController {
 
     @Autowired
-    private ClientRepository clientRepository;
+    private ClientServiceImplement clientService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private AccountController  accountController;
+    private AccountService accountService;
 
     @RequestMapping("/clients")
     public ResponseEntity<List<ClientDTO>> getClients() {
-        List<ClientDTO> clients = clientRepository.findAll().stream().map(ClientDTO::new).collect(toList());
-        return new ResponseEntity<>(clients, HttpStatus.OK);
+        return new ResponseEntity<>(clientService.getAllClientDTO(), HttpStatus.OK);
     }
 
     @GetMapping("/clients/{id}")
     public ResponseEntity<ClientDTO> getClient(@PathVariable Long id) {
-        ClientDTO clientDTO = clientRepository.findById(id).map(ClientDTO::new).orElse(null);
-        return new ResponseEntity<>(clientDTO,HttpStatus.OK);
+        return new ResponseEntity<>(clientService.getClientDTO(id), HttpStatus.OK);
     }
 
     @RequestMapping("/clients/current")
     public ClientDTO getClientCurrent(Authentication authentication) {
-        Client client = clientRepository.findByEmail(authentication.getName());
+        Client client = clientService.findByEmail(authentication.getName());
         return new ClientDTO(client);
     }
 
@@ -70,15 +61,14 @@ public class ClientController {
         if (password.isBlank()) {
             return new ResponseEntity<>("Missing password", HttpStatus.FORBIDDEN);
         }
-        if (clientRepository.findByEmail(email) !=  null) {
+        if (clientService.findByEmail(email) !=  null) {
             return new ResponseEntity<>("Email already in use", HttpStatus.FORBIDDEN);
         }
-        Client client = new Client(firstName, lastName, email, passwordEncoder.encode(password));
-        clientRepository.save(client);
+        Client client = clientService.saveClient(firstName, lastName, email, password);
 
-        Account account = new Account(accountController.createNumberAccount(), LocalDate.now(),0.0);
+        Account account = accountService.createAccount();
         account.setClient(client);
-        accountRepository.save(account);
+        accountService.save(account);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
