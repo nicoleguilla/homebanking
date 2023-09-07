@@ -46,7 +46,7 @@ public class TransactionController {
     }
 
     @Transactional
-    @RequestMapping(path = "/transactions",method = RequestMethod.POST)
+    @PostMapping("/transactions")
     public ResponseEntity<Object> createTransaction(Authentication authentication, @RequestParam double amount, @RequestParam String description, @RequestParam String fromAccountNumber, @RequestParam String toAccountNumber){
 
         Account sourceAccount = accountService.findByNumber(fromAccountNumber);
@@ -84,9 +84,8 @@ public class TransactionController {
         if(sourceAccount.getBalance()<amount){
             return new ResponseEntity<>("Insufficient funds",HttpStatus.FORBIDDEN);
         }
-
-        Transaction debitTransaction = new Transaction(TransactionType.DEBIT,-amount,description + " (DEBIT " + fromAccountNumber + ")", LocalDateTime.now());
-        Transaction creditTransaction = new Transaction(TransactionType.CREDIT,amount,description + " (CREDIT " + toAccountNumber + ")", LocalDateTime.now());
+        Transaction debitTransaction = transactionService.createDebitTransaction(amount, description + " (DEBIT" + fromAccountNumber +")");
+        Transaction creditTransaction = transactionService.createCreditTransaction(amount, description + " (CREDIT " + toAccountNumber + ")");
 
         sourceAccount.addTransaction(debitTransaction);
         destinationAccount.addTransaction(creditTransaction);

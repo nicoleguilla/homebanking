@@ -7,11 +7,8 @@ import java.time.LocalDateTime;
 
 public class TransactionDTO {
     private Long id;
-
     private TransactionType type;
-
     private Double amount;
-
     private String description;
 
     private LocalDateTime date;

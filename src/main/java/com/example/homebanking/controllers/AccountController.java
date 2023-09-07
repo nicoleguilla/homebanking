@@ -49,7 +49,7 @@ public class AccountController {
         return new ResponseEntity<>("Access deny", HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(path ="/clients/current/accounts" ,method = RequestMethod.POST)
+    @PostMapping("/clients/current/accounts")
     public ResponseEntity<Object> createAccount(Authentication authentication){
 
         if(accountService.findByClientEmail(authentication.getName()).size()>=3){
