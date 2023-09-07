@@ -49,9 +49,6 @@ public class TransactionController {
     @PostMapping("/transactions")
     public ResponseEntity<Object> createTransaction(Authentication authentication, @RequestParam double amount, @RequestParam String description, @RequestParam String fromAccountNumber, @RequestParam String toAccountNumber){
 
-        Account sourceAccount = accountService.findByNumber(fromAccountNumber);
-        Account destinationAccount = accountService.findByNumber(toAccountNumber);
-
         if (amount <= 0) {
             return new ResponseEntity<>("Amount invalid", HttpStatus.FORBIDDEN);
         }
@@ -64,6 +61,9 @@ public class TransactionController {
         if (toAccountNumber.isEmpty()) {
             return new ResponseEntity<>("Number of destination account is empty", HttpStatus.FORBIDDEN);
         }
+
+        Account sourceAccount = accountService.findByNumber(fromAccountNumber);
+        Account destinationAccount = accountService.findByNumber(toAccountNumber);
 
         if (fromAccountNumber.equals(toAccountNumber)){
             return new ResponseEntity<>("Destination account number and source account number are the same", HttpStatus.FORBIDDEN);
