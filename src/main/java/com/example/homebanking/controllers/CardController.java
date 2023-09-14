@@ -30,12 +30,12 @@ public class CardController {
     @Autowired
     private ClientService clientService;
 
-    @RequestMapping("/cards")
+    @GetMapping("/cards")
     public List<CardDTO> getAllCards(){
         return cardService.getAllCardDTO();
     }
 
-    @RequestMapping("/clients/current/cards")
+    @GetMapping("/clients/current/cards")
     public List<CardDTO> getCurrentClientCards(Authentication authentication){
         return cardService.getCurrentClientCards(authentication.getName());
     }

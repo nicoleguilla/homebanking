@@ -62,7 +62,7 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @RequestMapping(path ="/clients/current/accounts")
+    @GetMapping("/clients/current/accounts")
     public List<AccountDTO> getClientAccounts(Authentication authentication){
         return accountService.getClientAccounts(authentication.getName());
     }

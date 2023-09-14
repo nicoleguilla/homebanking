@@ -29,7 +29,7 @@ public class ClientController {
     @Autowired
     private AccountService accountService;
 
-    @RequestMapping("/clients")
+    @GetMapping("/clients")
     public ResponseEntity<List<ClientDTO>> getClients() {
         return new ResponseEntity<>(clientService.getAllClientDTO(), HttpStatus.OK);
     }
@@ -39,7 +39,7 @@ public class ClientController {
         return new ResponseEntity<>(clientService.getClientDTO(id), HttpStatus.OK);
     }
 
-    @RequestMapping("/clients/current")
+    @GetMapping("/clients/current")
     public ClientDTO getClientCurrent(Authentication authentication) {
         Client client = clientService.findByEmail(authentication.getName());
         return new ClientDTO(client);
